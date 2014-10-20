@@ -1,5 +1,6 @@
 import fileinput
 import sys
+import os.path
 from turtle import *
 
 '''			SIMPLE TURTLE PARSER
@@ -17,19 +18,24 @@ from turtle import *
 '''
 
 multiplier = 100
-colours = ["red", "blue", "yellow"]
+colours = ["red", "blue", "yellow", "green"]
 
 def parseFile(file):
-	pen = -1
-	pen_state = -1
-	direction = -1
+	if not(os.path.isfile(file)):
+		print("No such file: "+file)
+		return
+
+	numOfLines = 0
 	for line in fileinput.input(file):
+		numOfLines += 1
+
 		# Parse comments
 		if len(line) < 1: 
 			continue
 		elif line[0] == '#':
 			continue
-		cmd = line[0]
+		tokens = line.split()
+		cmd = tokens[0]
 
 		# Parse commands without arguments
 		if cmd == 'D':
@@ -38,12 +44,15 @@ def parseFile(file):
 		elif cmd == 'U':
 			up()
 			continue
-		elif len(line) < 3:
-			print("Not enough arguments")
+		elif len(tokens) < 2:
+			print("Not enough arguments on line "+str(numOfLines))
+			return
+		if not(tokens[2].startswith("#")):
+			print("Syntax error on line "+str(numOfLines))
 			return
 
 		# Parse commands with arguments
-		arg = int(line[2])
+		arg = int(tokens[1])
 		if cmd == 'P':
 			color(colours[arg-1])
 		elif cmd == 'N':
@@ -58,6 +67,7 @@ def parseFile(file):
 		elif cmd == "W":
 			setheading(180)
 			forward(arg*multiplier)
+	done()
 
 # Main method
 if __name__ == '__main__':
@@ -67,4 +77,4 @@ if __name__ == '__main__':
 	else:
 		degrees()
 		parseFile(sys.argv[1])
-		done()
+		
